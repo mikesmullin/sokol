@@ -5954,6 +5954,44 @@ typedef struct {
 } _sg_state_t;
 static _sg_state_t _sg;
 
+/*
+// Mike's Profiler
+typedef struct MSTrace {
+    uint64_t last_time;
+    uint64_t total_time;
+    uint32_t call_count;
+} MSTrace;
+
+#define MS_MAX_PROFILE_FNS (99)
+
+typedef struct MSProfiler {
+    MSTrace traces[MS_MAX_PROFILE_FNS];
+} MSProfiler;
+
+static MSProfiler _profiler;
+
+#include <time.h>
+
+static uint64_t _stm_now(void) {
+    LARGE_INTEGER frequency, counter;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&counter);
+    return (uint64_t)((counter.QuadPart * 1000000) / frequency.QuadPart);
+}
+
+void MSProfiler__beginTrace(int id) {
+    uint64_t now = _stm_now();
+    _profiler.traces[id].last_time = -now;
+    _profiler.traces[id].call_count++;
+}
+
+void MSProfiler__endTrace(int id) {
+    uint64_t now = _stm_now();
+    _profiler.traces[id].last_time += now;
+    _profiler.traces[id].total_time += _profiler.traces[id].last_time;
+}
+*/
+
 // ██       ██████   ██████   ██████  ██ ███    ██  ██████
 // ██      ██    ██ ██       ██       ██ ████   ██ ██
 // ██      ██    ██ ██   ███ ██   ███ ██ ██ ██  ██ ██   ███
