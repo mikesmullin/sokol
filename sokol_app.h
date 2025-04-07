@@ -1911,6 +1911,9 @@ SOKOL_APP_API_DECL int sapp_gl_get_minor_version(void);
 /* Android: get native activity handle */
 SOKOL_APP_API_DECL const void* sapp_android_get_native_activity(void);
 
+/* Custom: implemented by msmullin */
+SOKOL_APP_API_DECL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, int h);
+
 #ifdef __cplusplus
 } /* extern "C" */
 
@@ -12220,5 +12223,16 @@ SOKOL_API_IMPL const void* sapp_android_get_native_activity(void) {
 SOKOL_API_IMPL void sapp_html5_ask_leave_site(bool ask) {
     _sapp.html5_ask_leave_site = ask;
 }
+
+
+SOKOL_API_IMPL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, int h) {
+    #if defined(_SAPP_WIN32)
+        SetWindowPos(NULL == hwnd ? _sapp.win32.hwnd : hwnd, HWND_TOP, x, y, w, h, 0);
+        return _sapp.win32.hwnd;
+    #else
+        return 0;
+    #endif
+}
+
 
 #endif /* SOKOL_APP_IMPL */
