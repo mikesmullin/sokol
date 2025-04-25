@@ -12227,7 +12227,11 @@ SOKOL_API_IMPL void sapp_html5_ask_leave_site(bool ask) {
 
 SOKOL_API_IMPL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, int h) {
     #if defined(_SAPP_WIN32)
+	#ifdef cplusplus
         SetWindowPos((HWND__*)(NULL == hwnd ? _sapp.win32.hwnd : hwnd), HWND_TOP, x, y, w, h, 0);
+	#else
+        SetWindowPos((HWND)(NULL == hwnd ? _sapp.win32.hwnd : hwnd), HWND_TOP, x, y, w, h, 0);
+	#endif
         return _sapp.win32.hwnd;
     #else
         return 0;
