@@ -1,3 +1,4 @@
+// clang-format off
 #if defined(SOKOL_IMPL) && !defined(SOKOL_APP_IMPL)
 #define SOKOL_APP_IMPL
 #endif
@@ -1912,7 +1913,7 @@ SOKOL_APP_API_DECL int sapp_gl_get_minor_version(void);
 SOKOL_APP_API_DECL const void* sapp_android_get_native_activity(void);
 
 /* Custom: implemented by msmullin */
-SOKOL_APP_API_DECL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, int h);
+SOKOL_APP_API_DECL void* sapp_win32_set_window_pos(void* hwnd, bool ontop, int x, int y, int w, int h);
 
 #ifdef __cplusplus
 } /* extern "C" */
@@ -1946,10 +1947,10 @@ inline void sapp_run(const sapp_desc& desc) { return sapp_run(&desc); }
 #error "SOKOL_MALLOC/CALLOC/FREE macros are no longer supported, please use sapp_desc.allocator to override memory allocation functions"
 #endif
 
+#include <math.h>   // roundf
+#include <stddef.h> // size_t
 #include <stdlib.h> // malloc, free
 #include <string.h> // memset, strncmp
-#include <stddef.h> // size_t
-#include <math.h>   // roundf
 
 // helper macros
 #define _sapp_def(val, def) (((val) == 0) ? (def) : (val))
@@ -2105,9 +2106,9 @@ inline void sapp_run(const sapp_desc& desc) { return sapp_run(&desc); }
     #ifndef NOMINMAX
         #define NOMINMAX
     #endif
+    #include <shellapi.h>
     #include <windows.h>
     #include <windowsx.h>
-    #include <shellapi.h>
     #if !defined(SOKOL_NO_ENTRY)    // if SOKOL_NO_ENTRY is defined, it's the applications' responsibility to use the right subsystem
         #if defined(SOKOL_WIN32_FORCE_MAIN)
             #pragma comment (linker, "/subsystem:console")
@@ -2143,33 +2144,33 @@ inline void sapp_run(const sapp_desc& desc) { return sapp_run(&desc); }
         #define WM_DPICHANGED (0x02E0)
     #endif
 #elif defined(_SAPP_ANDROID)
-    #include <pthread.h>
-    #include <unistd.h>
-    #include <time.h>
-    #include <android/native_activity.h>
-    #include <android/looper.h>
     #include <EGL/egl.h>
     #include <GLES3/gl3.h>
+    #include <android/looper.h>
+    #include <android/native_activity.h>
+    #include <pthread.h>
+    #include <time.h>
+    #include <unistd.h>
 #elif defined(_SAPP_LINUX)
     #define GL_GLEXT_PROTOTYPES
-    #include <X11/Xlib.h>
-    #include <X11/Xutil.h>
     #include <X11/XKBlib.h>
-    #include <X11/keysym.h>
-    #include <X11/Xresource.h>
     #include <X11/Xatom.h>
-    #include <X11/extensions/XInput2.h>
     #include <X11/Xcursor/Xcursor.h>
-    #include <X11/cursorfont.h> /* XC_* font cursors */
+    #include <X11/Xlib.h>
     #include <X11/Xmd.h> /* CARD32 */
+    #include <X11/Xresource.h>
+    #include <X11/Xutil.h>
+    #include <X11/cursorfont.h> /* XC_* font cursors */
+    #include <X11/extensions/XInput2.h>
+    #include <X11/keysym.h>
     #if !defined(_SAPP_GLX)
         #include <EGL/egl.h>
     #endif
     #include <dlfcn.h> /* dlopen, dlsym, dlclose */
     #include <limits.h> /* LONG_MAX */
+    #include <poll.h>
     #include <pthread.h>    /* only used a linker-guard, search for _sapp_linux_run() and see first comment */
     #include <time.h>
-    #include <poll.h>
 #endif
 
 #if defined(_SAPP_APPLE)
@@ -12227,13 +12228,18 @@ SOKOL_API_IMPL void sapp_html5_ask_leave_site(bool ask) {
     _sapp.html5_ask_leave_site = ask;
 }
 
-
-SOKOL_API_IMPL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, int h) {
+SOKOL_API_IMPL void* sapp_win32_set_window_pos(void* hwnd, bool ontop, int x, int y, int w, int h) {
     #if defined(_SAPP_WIN32)
 	#ifdef cplusplus
-        SetWindowPos((HWND__*)(NULL == hwnd ? _sapp.win32.hwnd : hwnd), HWND_TOP, x, y, w, h, 0);
+        SetWindowPos(
+            (HWND__*)(NULL == hwnd ? _sapp.win32.hwnd : hwnd),
+            ontop ? HWND_TOPMOST : HWND_TOP,
+            x, y, w, h, 0);
 	#else
-        SetWindowPos((HWND)(NULL == hwnd ? _sapp.win32.hwnd : hwnd), HWND_TOP, x, y, w, h, 0);
+        SetWindowPos(
+            (HWND)(NULL == hwnd ? _sapp.win32.hwnd : hwnd),
+            ontop ? HWND_TOPMOST : HWND_TOP,
+            x, y, w, h, 0);
 	#endif
         return _sapp.win32.hwnd;
     #else
@@ -12243,3 +12249,4 @@ SOKOL_API_IMPL void* sapp_win32_set_window_pos(void* hwnd, int x, int y, int w, 
 
 
 #endif /* SOKOL_APP_IMPL */
+// clang-format on
